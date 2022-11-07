@@ -12,7 +12,6 @@ app.use(express.json());
 
 // mongodb client
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.pwqsejd.mongodb.net/?retryWrites=true&w=majority`;
-console.log(uri);
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -21,6 +20,20 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
+    // service collection for mongodb database
+    const serviceCollection = client.db("serviceDB").collection("services");
+
+    // read service data
+    app.get("/services", async (req, res) => {
+      const query = {};
+      //   all service data
+      const allService = serviceCollection.find(query);
+      //   three service data
+      const cursor = serviceCollection.find(query).limit(3);
+      const service = await cursor.toArray();
+      const services = await allService.toArray();
+      res.send({ services, service });
+    });
   } finally {
   }
 }
