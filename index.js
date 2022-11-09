@@ -22,6 +22,8 @@ async function run() {
   try {
     // service collection for mongodb database
     const serviceCollection = client.db("serviceDB").collection("services");
+    // review collection
+    const reviewCollection = client.db("serviceDB").collection("reviews");
 
     // read service data
     app.get("/services", async (req, res) => {
@@ -41,6 +43,34 @@ async function run() {
       const query = { _id: ObjectId(id) };
       const service = await serviceCollection.findOne(query);
       res.send(service);
+    });
+
+    // review api
+    app.post("/reviews", async (req, res) => {
+      const review = req.body;
+      const result = await reviewCollection.insertOne(review);
+      res.send(result);
+    });
+
+    // reviews all data get
+    app.get("/reviews", async (req, res) => {
+      let query = {};
+      if (req.query.email) {
+        query = {
+          email: req.query.email,
+        };
+      }
+      const cursor = reviewCollection.find(query);
+      const review = await cursor.toArray();
+      res.send(review);
+    });
+
+    // delete one id data
+    app.delete("/reviews/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await reviewCollection.deleteOne(query);
+      res.send(result);
     });
   } finally {
   }
