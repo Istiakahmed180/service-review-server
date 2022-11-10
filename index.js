@@ -3,6 +3,7 @@ const cors = require("cors");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const services = require("./services.json");
 require("dotenv").config();
+const jwt = require("jsonwebtoken");
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -24,6 +25,15 @@ async function run() {
     const serviceCollection = client.db("serviceDB").collection("services");
     // review collection
     const reviewCollection = client.db("serviceDB").collection("reviews");
+
+    // jwt api code
+    app.post("/jwt", (req, res) => {
+      const user = req.body;
+      const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: "1d",
+      });
+      res.send({ token });
+    });
 
     // read service data
     app.get("/services", async (req, res) => {
